@@ -13,24 +13,21 @@ import java.util.List;
 @RequestMapping("/api")
 public class CustomerOrderController {
 
-    private final CustomerRepository customerRepository;
+    private final CustomerService customerService;
+    private final OrderService orderService;
 
-    private final OrderRepository orderRepository;
-
-    public CustomerOrderController(CustomerRepository customerRepository, OrderRepository orderRepository) {
-        this.customerRepository = customerRepository;
-        this.orderRepository = orderRepository;
+    public CustomerOrderController(CustomerService customerService, OrderService orderService) {
+        this.customerService = customerService;
+        this.orderService = orderService;
     }
 
     @PostMapping("/customer-with-orders")
     public ResponseEntity<String> createCustomerWithOrders(@RequestBody CustomerOrderRequest customerOrderRequest) {
-
-        // 1. Save the Customer and get the generated customer ID
-
-
-        // 2. Save the Orders and link them to the customer
-
-
+        Customer savedCustomer = customerService.createCustomer(customerOrderRequest.getCustomer());
+        for (Order order : customerOrderRequest.getOrders()) {
+            order.setCustomerId(savedCustomer.getId());
+            orderService.createOrder(order);
+        }
         return ResponseEntity.ok("Customer and orders created successfully");
     }
 }
